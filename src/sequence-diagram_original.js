@@ -206,16 +206,12 @@
 
 		init_font : function() {},
 
-		draw_line : function(x1, y1, x2, y2, classes) {
-            var line = this._paper.line(x1, y1, x2, y2);
-            if (classes !== undefined && Raphael.type === "SVG") line.node.setAttribute('class', classes+' line');
-			return line;
+		draw_line : function(x1, y1, x2, y2) {
+			return this._paper.line(x1, y1, x2, y2);
 		},
 
-		draw_rect : function(x, y, w, h, classes) {
-			var rect = this._paper.rect(x, y, w, h);
-            if (classes !== undefined && Raphael.type === "SVG") rect.node.setAttribute('class', classes+' rect');
-            return rect;
+		draw_rect : function(x, y, w, h) {
+			return this._paper.rect(x, y, w, h);
 		},
 
 		draw : function(container) {
@@ -393,32 +389,31 @@
 		draw_title : function() {
 			var title = this._title;
 			if (title)
-				this.draw_text_box(title, title.message, TITLE_MARGIN, TITLE_PADDING, this._font, 'title');
+				this.draw_text_box(title, title.message, TITLE_MARGIN, TITLE_PADDING, this._font);
 		},
 
 		draw_actors : function(offsetY) {
 			var y = offsetY;
 			_.each(this.diagram.actors, function(a) {
 				// Top box
-				this.draw_actor(a, y, this._actors_height, 'topactor');
+				this.draw_actor(a, y, this._actors_height);
 
 				// Bottom box
-				this.draw_actor(a, y + this._actors_height + this._signals_height, this._actors_height, 'bottomactor');
+				this.draw_actor(a, y + this._actors_height + this._signals_height, this._actors_height);
 
 				// Veritical line
 				var aX = getCenterX(a);
 				var line = this.draw_line(
 					aX, y + this._actors_height - ACTOR_MARGIN,
-					aX, y + this._actors_height + ACTOR_MARGIN + this._signals_height,
-                    'actor');
+					aX, y + this._actors_height + ACTOR_MARGIN + this._signals_height);
 				line.attr(LINE);
 			}, this);
 		},
 
-		draw_actor : function (actor, offsetY, height, classes) {
+		draw_actor : function (actor, offsetY, height) {
 			actor.y      = offsetY;
 			actor.height = height;
-			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor');
+			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font);
 		},
 
 		draw_signals : function (offsetY) {
@@ -448,7 +443,7 @@
 			var x = aX + SELF_SIGNAL_WIDTH + SIGNAL_PADDING - text_bb.x;
 			var y = offsetY + signal.height / 2;
 
-			this.draw_text(x, y, signal.message, this._font, 'signal');
+			this.draw_text(x, y, signal.message, this._font);
 
 			var attr = _.extend({}, LINE, {
 				'stroke-dasharray': this.line_types[signal.linetype]
@@ -459,13 +454,13 @@
 
 			// Draw three lines, the last one with a arrow
 			var line;
-			line = this.draw_line(aX, y1, aX + SELF_SIGNAL_WIDTH, y1, 'signal');
+			line = this.draw_line(aX, y1, aX + SELF_SIGNAL_WIDTH, y1);
 			line.attr(attr);
 
-			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y1, aX + SELF_SIGNAL_WIDTH, y2, 'signal');
+			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y1, aX + SELF_SIGNAL_WIDTH, y2);
 			line.attr(attr);
 
-			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y2, aX, y2, 'signal');
+			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y2, aX, y2);
 			attr['arrow-end'] = this.arrow_types[signal.arrowtype] + '-wide-long';
 			line.attr(attr);
 		},
@@ -479,11 +474,11 @@
 			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
 
 			// Draw the text in the middle of the signal
-			this.draw_text(x, y, signal.message, this._font, 'signal');
+			this.draw_text(x, y, signal.message, this._font);
 
 			// Draw the line along the bottom of the signal
 			y = offsetY + signal.height - SIGNAL_MARGIN - SIGNAL_PADDING;
-			var line = this.draw_line(aX, y, bX, y, 'signal');
+			var line = this.draw_line(aX, y, bX, y);
 			line.attr(LINE);
 			line.attr({
 				'arrow-end': this.arrow_types[signal.arrowtype] + '-wide-long',
@@ -520,7 +515,7 @@
 					throw new Error("Unhandled note placement:" + note.placement);
 			}
 
-			this.draw_text_box(note, note.message, NOTE_MARGIN, NOTE_PADDING, this._font, 'note');
+			this.draw_text_box(note, note.message, NOTE_MARGIN, NOTE_PADDING, this._font);
 		},
 
 		/**
@@ -528,7 +523,7 @@
 		 * x,y (int) x,y center point for this text
 		 * TODO Horz center the text when it's multi-line print
 		 */
-		draw_text : function (x, y, text, font, classes) {
+		draw_text : function (x, y, text, font) {
 			var paper = this._paper;
 			var f = font || {};
 			var t;
@@ -538,31 +533,29 @@
 				t = paper.text(x, y, text);
 				t.attr(f);
 			}
-            if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
 			// draw a rect behind it
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
-            if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
 		},
 
-		draw_text_box : function (box, text, margin, padding, font, classes) {
+		draw_text_box : function (box, text, margin, padding, font) {
 			var x = box.x + margin;
 			var y = box.y + margin;
 			var w = box.width  - 2 * margin;
 			var h = box.height - 2 * margin;
 
 			// Draw inner box
-			var rect = this.draw_rect(x, y, w, h, classes+' textbox innerbox');
+			var rect = this.draw_rect(x, y, w, h);
 			rect.attr(LINE);
 
 			// Draw text (in the center)
 			x = getCenterX(box);
 			y = getCenterY(box);
 
-			this.draw_text(x, y, text, font, classes+' textbox');
+			this.draw_text(x, y, text, font);
 		}
 
 		/**
