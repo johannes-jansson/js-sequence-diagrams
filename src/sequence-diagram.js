@@ -422,7 +422,7 @@
       // This is added by Johannes: (tk)
       var legNbr = [0, 1];
       for (var i = 0; i < 2; i++) {
-        this.draw_text('10', '10', legNbr[i], this._font, classes+' actor leg');
+        this.draw_text(i*80+ actor.x, actor.y+10, legNbr[i], this._font, classes+' actor leg');
       }
 		},
 
