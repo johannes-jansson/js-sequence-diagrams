@@ -476,6 +476,7 @@
 
 			// Mid point between actors
 			var x = (bX - aX) / 2 + aX;
+      //tk this is where we should change stuff
 			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
 
 			// Draw the text in the middle of the signal
