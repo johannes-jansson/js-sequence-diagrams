@@ -419,6 +419,11 @@
 			actor.y      = offsetY;
 			actor.height = height;
 			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor');
+      // This is added by Johannes: (tk)
+      var legNbr = [0, 1];
+      for (var i = 0; i < 2; i++) {
+        this.draw_text('10', '10', legNbr[i], this._font, classes+' actor leg');
+      }
 		},
 
 		draw_signals : function (offsetY) {
