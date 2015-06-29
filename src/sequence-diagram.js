@@ -522,8 +522,8 @@
 
 			// this.draw_text_box(note, note.message, NOTE_MARGIN, NOTE_PADDING, this._font, 'note');
       // This is added by Johannes: (tk)
-			x = getCenterX(note);
-			y = getCenterY(note);
+			var x = getCenterX(note);
+			var y = getCenterY(note);
 			this.draw_text(x, y, note.message, this._font, 'note');
 
 		},
