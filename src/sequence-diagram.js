@@ -17,22 +17,22 @@
 	// Title box could look better
 	// Note box could look better
 
-	var DIAGRAM_MARGIN = 10;
+	var DIAGRAM_MARGIN = 5;
 
-	var ACTOR_MARGIN   = 10; // Margin around a actor
-	var ACTOR_PADDING  = 10; // Padding inside a actor
+	var ACTOR_MARGIN   = 5; // Margin around a actor
+	var ACTOR_PADDING  = 5; // Padding inside a actor
 
 	var SIGNAL_MARGIN  = 5; // Margin around a signal
-	var SIGNAL_PADDING = 5; // Padding inside a signal
+	var SIGNAL_PADDING = 3; // Padding inside a signal
 
-	var NOTE_MARGIN   = 10; // Margin around a note
+	var NOTE_MARGIN   = 2; // Margin around a note
 	var NOTE_PADDING  = 5; // Padding inside a note
-	var NOTE_OVERLAP  = 15; // Overlap when using a "note over A,B"
+	var NOTE_OVERLAP  = 5; // Overlap when using a "note over A,B"
 
 	var TITLE_MARGIN   = 0;
-	var TITLE_PADDING  = 5;
+	var TITLE_PADDING  = 2;
 
-	var SELF_SIGNAL_WIDTH = 20; // How far out a self signal goes
+	var SELF_SIGNAL_WIDTH = 10; // How far out a self signal goes
 
 	var PLACEMENT = Diagram.PLACEMENT;
 	var LINETYPE  = Diagram.LINETYPE;
