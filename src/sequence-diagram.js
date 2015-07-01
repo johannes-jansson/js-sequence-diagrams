@@ -475,7 +475,14 @@
 			var bX = getCenterX( signal.actorB );
 
 			// Mid point between actors
-			var x = (bX - aX) / 2 + aX;
+			//var x = (bX - aX) / 2 + aX;
+      var x;
+      if (aX < bX) {
+			  x = aX + signal.message.length*6; //tk changed
+      } else {
+			  x = aX - signal.message.length*6; //tk changed
+      }
+
 			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
 
 			// Draw the text in the middle of the signal
