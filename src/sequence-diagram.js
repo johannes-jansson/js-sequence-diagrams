@@ -488,14 +488,19 @@
       if (aX < bX) {
 			  x = aX + ACTOR_MARGIN; //tk changed
       } else {
-			  x = aX - ACTOR_MARGIN - signal.message.length*6; //tk changed
+			  x = aX - ACTOR_MARGIN; // - signal.message.length*6; //tk changed
       }
 
 			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
 
 			// Draw the text in the middle of the signal
 			//this.draw_text(x, y, signal.message, this._font, 'signal');
-			this.draw_text_left(x, y, signal.message, this._font, 'signal'); //tk changed
+      if (aX < bX) {
+			  this.draw_text_left(x, y, signal.message, this._font, 'signal'); //tk changed
+      } else {
+			  this.draw_text_right(x, y, signal.message, this._font, 'signal'); //tk changed
+      }
+
 
 			// Draw the line along the bottom of the signal
 			y = offsetY + signal.height - SIGNAL_MARGIN - SIGNAL_PADDING;
@@ -584,6 +589,31 @@
 				t = paper.print_center(x, y, text, f._obj, f['font-size']).attr({'text-anchor': 'start'});
 			} else {
 				t = paper.text(x, y, text).attr({'text-anchor': 'start'});
+				t.attr(f);
+			}
+      if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+
+			// draw a rect behind it
+			var bb = t.getBBox();
+			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
+      if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+			r.attr({'fill': "#fff", 'stroke': 'none'});
+
+			t.toFront();
+		},
+
+		/**
+		 * Draws text with a white background
+		 * x,y (int) x,y ending point for this text
+		 */
+		draw_text_right : function (x, y, text, font, classes) {
+			var paper = this._paper;
+			var f = font || {};
+			var t;
+			if (f._obj) {
+				t = paper.print_center(x, y, text, f._obj, f['font-size']).attr({'text-anchor': 'end'});
+			} else {
+				t = paper.text(x, y, text).attr({'text-anchor': 'end'});
 				t.attr(f);
 			}
       if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
