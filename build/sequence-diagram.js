@@ -1013,15 +1013,17 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 
 		init_font : function() {},
 
-		draw_line : function(x1, y1, x2, y2, classes) {
+		draw_line : function(x1, y1, x2, y2, classes, id) {
             var line = this._paper.line(x1, y1, x2, y2);
             if (classes !== undefined && Raphael.type === "SVG") line.node.setAttribute('class', classes+' line');
+            if (id !== undefined && Raphael.type === "SVG") line.node.setAttribute('id', id);
 			return line;
 		},
 
-		draw_rect : function(x, y, w, h, classes) {
+		draw_rect : function(x, y, w, h, classes, id) {
 			var rect = this._paper.rect(x, y, w, h);
             if (classes !== undefined && Raphael.type === "SVG") rect.node.setAttribute('class', classes+' rect');
+            if (id !== undefined && Raphael.type === "SVG") rect.node.setAttribute('id', id);
             return rect;
 		},
 
@@ -1200,32 +1202,32 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 		draw_title : function() {
 			var title = this._title;
 			if (title)
-				this.draw_text_box(title, title.message, TITLE_MARGIN, TITLE_PADDING, this._font, 'title');
+				this.draw_text_box(title, title.message, TITLE_MARGIN, TITLE_PADDING, this._font, 'title', title.message);
 		},
 
 		draw_actors : function(offsetY) {
 			var y = offsetY;
 			_.each(this.diagram.actors, function(a) {
 				// Top box
-				this.draw_actor(a, y, this._actors_height, 'topactor');
+				this.draw_actor(a, y, this._actors_height, 'topactor', a.name);
 
 				// Bottom box
-				this.draw_actor(a, y + this._actors_height + this._signals_height, this._actors_height, 'bottomactor');
+				this.draw_actor(a, y + this._actors_height + this._signals_height, this._actors_height, 'bottomactor', a.name);
 
 				// Veritical line
 				var aX = getCenterX(a);
 				var line = this.draw_line(
 					aX, y + this._actors_height - ACTOR_MARGIN,
 					aX, y + this._actors_height + ACTOR_MARGIN + this._signals_height,
-                    'actor');
+                    'actor', a.name);
 				line.attr(LINE);
 			}, this);
 		},
 
-		draw_actor : function (actor, offsetY, height, classes) {
+		draw_actor : function (actor, offsetY, height, classes, id) {
 			actor.y      = offsetY;
 			actor.height = height;
-			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor');
+			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor', id);
 		},
 
 		draw_signals : function (offsetY) {
@@ -1364,7 +1366,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 		 * x,y (int) x,y center point for this text
 		 * TODO Horz center the text when it's multi-line print
 		 */
-		draw_text : function (x, y, text, font, classes) {
+		draw_text : function (x, y, text, font, classes, id) {
 			var paper = this._paper;
 			var f = font || {};
 			var t;
@@ -1374,11 +1376,13 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 				t = paper.text(x, y, text);
 				t.attr(f);
 			}
-            if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 			// draw a rect behind it
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
-            if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
@@ -1434,21 +1438,21 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			t.toFront();
 		},
 
-		draw_text_box : function (box, text, margin, padding, font, classes) {
+		draw_text_box : function (box, text, margin, padding, font, classes, id) {
 			var x = box.x + margin;
 			var y = box.y + margin;
 			var w = box.width  - 2 * margin;
 			var h = box.height - 2 * margin;
 
 			// Draw inner box
-			var rect = this.draw_rect(x, y, w, h, classes+' textbox innerbox');
+			var rect = this.draw_rect(x, y, w, h, classes+' textbox innerbox', id);
 			rect.attr(LINE);
 
 			// Draw text (in the center)
 			x = getCenterX(box);
 			y = getCenterY(box);
 
-			this.draw_text(x, y, text, font, classes+' textbox');
+			this.draw_text(x, y, text, font, classes+' textbox', id);
 		}
 
 		/**
