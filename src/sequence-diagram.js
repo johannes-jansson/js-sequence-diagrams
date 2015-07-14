@@ -424,24 +424,28 @@
 		},
 
 		draw_signals : function (offsetY) {
+      var id = 0;
 			var y = offsetY;
 			_.each(this.diagram.signals, function(s) {
 				if (s.type == "Signal") {
 					if (s.isSelf()) {
-						this.draw_self_signal(s, y);
+						this.draw_self_signal(s, y, id);
 					} else {
-						this.draw_signal(s, y);
+						this.draw_signal(s, y, id);
 					}
 
 				} else if (s.type == "Note") {
-					this.draw_note(s, y);
+					this.draw_note(s, y, id);
 				}
 
-				y += s.height;
+				y += s.height; //tktk
+        if (s.message.substring(0,6) !== 'Cycle ') {
+          id ++;
+        }
 			}, this);
 		},
 
-		draw_self_signal : function(signal, offsetY) {
+		draw_self_signal : function(signal, offsetY, id) {
 			assert(signal.isSelf(), "signal must be a self signal");
 
 			var text_bb = signal.text_bb;
@@ -450,7 +454,7 @@
 			var x = aX + SELF_SIGNAL_WIDTH + SIGNAL_PADDING - text_bb.x;
 			var y = offsetY + signal.height / 2;
 
-			this.draw_text(x, y, signal.message, this._font, 'signal');
+			this.draw_text(x, y, signal.message, this._font, 'signal', id);
 
 			var attr = _.extend({}, LINE, {
 				'stroke-dasharray': this.line_types[signal.linetype]
@@ -461,18 +465,18 @@
 
 			// Draw three lines, the last one with a arrow
 			var line;
-			line = this.draw_line(aX, y1, aX + SELF_SIGNAL_WIDTH, y1, 'signal');
+			line = this.draw_line(aX, y1, aX + SELF_SIGNAL_WIDTH, y1, 'signal', id);
 			line.attr(attr);
 
-			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y1, aX + SELF_SIGNAL_WIDTH, y2, 'signal');
+			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y1, aX + SELF_SIGNAL_WIDTH, y2, 'signal', id);
 			line.attr(attr);
 
-			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y2, aX, y2, 'signal');
+			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y2, aX, y2, 'signal', id);
 			attr['arrow-end'] = this.arrow_types[signal.arrowtype] + '-wide-long';
 			line.attr(attr);
 		},
 
-		draw_signal : function (signal, offsetY) {
+		draw_signal : function (signal, offsetY, id) {
 			var aX = getCenterX( signal.actorA );
 			var bX = getCenterX( signal.actorB );
 
@@ -498,15 +502,15 @@
 			// Draw the text in the middle of the signal
 			//this.draw_text(x, y, signal.message, this._font, 'signal');
       if (aX < bX) {
-			  this.draw_text_left(x, y, signal.message, this._font, 'signal'); //tk changed
+			  this.draw_text_left(x, y, signal.message, this._font, 'signal', id); //tk changed
       } else {
-			  this.draw_text_right(x, y, signal.message, this._font, 'signal'); //tk changed
+			  this.draw_text_right(x, y, signal.message, this._font, 'signal', id); //tk changed
       }
 
 
 			// Draw the line along the bottom of the signal
 			y = offsetY + signal.height - SIGNAL_MARGIN - SIGNAL_PADDING;
-			var line = this.draw_line(aX, y, bX, y, 'signal');
+			var line = this.draw_line(aX, y, bX, y, 'signal', id);
 			line.attr(LINE);
 			line.attr({
 				'arrow-end': this.arrow_types[signal.arrowtype] + '-wide-long',
@@ -518,7 +522,7 @@
 			//draw_arrowhead(bX, offsetY, ARROW_SIZE, dir);
 		},
 
-		draw_note : function (note, offsetY) {
+		draw_note : function (note, offsetY, id) {
 			note.y = offsetY;
 			var actorA = note.hasManyActors() ? note.actor[0] : note.actor;
 			var aX = getCenterX( actorA );
@@ -550,7 +554,6 @@
       var x = aX + ACTOR_MARGIN; //note.x + NOTE_OVERLAP + NOTE_PADDING + note.message.length*5;
       //var x = aX + note.message.length*6;
 			var y = getCenterY(note);
-      var id;
       if (note.message.substring(0,6) === 'Cycle ') {
         console.log(note.actor[1]);
         console.log(getCenterX(note.actor[1]));
@@ -558,8 +561,7 @@
         this.draw_cycle(x,y,note.message, this._font, 'note', note.message);
         return;
       }
-      id = 13;
-			this.draw_text_left(x, y, note.message, this._font, 'note');
+			this.draw_text_left(x, y, note.message, this._font, 'note', id);
 
 		},
 
@@ -621,7 +623,7 @@
 		 * Draws text with a white background
 		 * x,y (int) x,y starting point for this text
 		 */
-		draw_text_left : function (x, y, text, font, classes) {
+		draw_text_left : function (x, y, text, font, classes, id) {
 			var paper = this._paper;
 			var f = font || {};
 			var t;
@@ -632,11 +634,13 @@
 				t.attr(f);
 			}
       if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 
 			// draw a rect behind it
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
       if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
@@ -646,7 +650,7 @@
 		 * Draws text with a white background
 		 * x,y (int) x,y ending point for this text
 		 */
-		draw_text_right : function (x, y, text, font, classes) {
+		draw_text_right : function (x, y, text, font, classes, id) {
 			var paper = this._paper;
 			var f = font || {};
 			var t;
@@ -657,11 +661,13 @@
 				t.attr(f);
 			}
       if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 
 			// draw a rect behind it
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
       if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
