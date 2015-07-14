@@ -1357,6 +1357,15 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
       var x = aX + ACTOR_MARGIN; //note.x + NOTE_OVERLAP + NOTE_PADDING + note.message.length*5;
       //var x = aX + note.message.length*6;
 			var y = getCenterY(note);
+      var id;
+      if (note.message.substring(0,6) === 'Cycle ') {
+        console.log(note.actor[1]);
+        console.log(getCenterX(note.actor[1]));
+			  x = (getCenterX(note.actor[1]) - aX) / 2 + aX;
+        this.draw_cycle(x,y,note.message, this._font, 'note', note.message);
+        return;
+      }
+      id = 13;
 			this.draw_text_left(x, y, note.message, this._font, 'note');
 
 		},
@@ -1367,6 +1376,33 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 		 * TODO Horz center the text when it's multi-line print
 		 */
 		draw_text : function (x, y, text, font, classes, id) {
+			var paper = this._paper;
+			var f = font || {};
+			var t;
+			if (f._obj) {
+				t = paper.print_center(x, y, text, f._obj, f['font-size']);
+			} else {
+				t = paper.text(x, y, text);
+				t.attr(f);
+			}
+      if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
+			// draw a rect behind it
+			var bb = t.getBBox();
+			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
+      if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
+			r.attr({'fill': "#fff", 'stroke': 'none'});
+
+			t.toFront();
+		},
+
+		/**
+		 * Draws text with two lines
+		 * x,y (int) x,y center point for this text
+		 * TODO Horz center the text when it's multi-line print
+		 */
+		draw_cycle : function (x, y, text, font, classes, id) {
 			var paper = this._paper;
 			var f = font || {};
 			var t;
