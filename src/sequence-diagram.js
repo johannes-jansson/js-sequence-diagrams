@@ -39,7 +39,7 @@
 	var ARROWTYPE = Diagram.ARROWTYPE;
 
   var FONTSIZE = 12;
-  var FONTFACE = "Helvetica, Arial";
+  var FONTFAMILY = "Helvetica, Arial";
 
 	var LINE = {
 		'stroke': '#000',
@@ -590,6 +590,8 @@
 				t = paper.text(x, y, text);
 				t.attr(f);
 			}
+      t.attr('font-size', FONTSIZE);
+      t.attr('font-family', FONTFAMILY);
       if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
       if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 			// draw a rect behind it
@@ -619,6 +621,8 @@
 				t = paper.text(x, y, text);
 				t.attr(f);
 			}
+      t.attr('font-size', FONTSIZE);
+      t.attr('font-family', FONTFAMILY);
       if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
       if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 			// draw a rect behind it
@@ -647,6 +651,8 @@
 				t = paper.text(x, y, text).attr({'text-anchor': 'start'});
 				t.attr(f);
 			}
+      t.attr('font-size', FONTSIZE);
+      t.attr('font-family', FONTFAMILY);
       if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
       if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 
@@ -674,6 +680,8 @@
 				t = paper.text(x, y, text).attr({'text-anchor': 'end'});
 				t.attr(f);
 			}
+      t.attr('font-size', FONTSIZE);
+      t.attr('font-family', FONTFAMILY);
       if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
       if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 
@@ -769,11 +777,12 @@
 		hand  : HandRaphaelTheme
 	};
 
-	Diagram.prototype.displaySettings = function (margin, fontsize, fontface) {
+	Diagram.prototype.displaySettings = function (margin, font_size, font_family) {
+    alert("Changing settings");
 	  SIGNAL_MARGIN = margin;
 	  NOTE_MARGIN   = margin;
     FONTSIZE = font_size;
-    FONTFACE = font_face;
+    FONTFAMILY = font_family;
 	};
 
 	Diagram.prototype.drawSVG = function (container, options) {
