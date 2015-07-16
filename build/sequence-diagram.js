@@ -826,7 +826,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 
 	var DIAGRAM_MARGIN = 5;
 
-	var ACTOR_MARGIN   = 5; // Margin around a actor
+	var ACTOR_MARGIN   = 15; // Margin around a actor
 	var ACTOR_PADDING  = 5; // Padding inside a actor
 
 	var SIGNAL_MARGIN  = 2; // Margin around a signal
@@ -1232,10 +1232,13 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			actor.y      = offsetY;
 			actor.height = height;
 			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor', id);
+
       // This is added by Johannes: (tk)
-      var legNbr = [0, 1];
-      for (var i = 0; i < 2; i++) {
-        this.draw_text(i*80+ actor.x, actor.y+10, legNbr[i], this._font, classes+' actor leg');
+      
+      if (id !== "System") {
+        var legNbr = [0, 1];
+        this.draw_text(actor.x +  5, actor.y + height/2, legNbr[0], this._font, classes+' actor leg', id);
+        this.draw_text(actor.x + 85, actor.y + height/2, legNbr[1], this._font, classes+' actor leg', id);
       }
 		},
 
