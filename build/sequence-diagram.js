@@ -829,8 +829,8 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 	var ACTOR_MARGIN   = 5; // Margin around a actor
 	var ACTOR_PADDING  = 5; // Padding inside a actor
 
-	var SIGNAL_MARGIN  = 5; // Margin around a signal
-	var SIGNAL_PADDING = 3; // Padding inside a signal
+	var SIGNAL_MARGIN  = 2; // Margin around a signal
+	var SIGNAL_PADDING = 5; // Padding inside a signal
 
 	var NOTE_MARGIN   = 2; // Margin around a note
 	var NOTE_PADDING  = 5; // Padding inside a note
@@ -844,6 +844,9 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 	var PLACEMENT = Diagram.PLACEMENT;
 	var LINETYPE  = Diagram.LINETYPE;
 	var ARROWTYPE = Diagram.ARROWTYPE;
+
+  var FONTSIZE = 12;
+  var FONTFACE = "Helvetica, Arial";
 
 	var LINE = {
 		'stroke': '#000',
@@ -1011,7 +1014,8 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			this._paper = new Raphael(container, 320, 200);
 		},
 
-		init_font : function() {},
+		init_font : function() {
+    },
 
 		draw_line : function(x1, y1, x2, y2, classes, id) {
             var line = this._paper.line(x1, y1, x2, y2);
@@ -1022,9 +1026,9 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 
 		draw_rect : function(x, y, w, h, classes, id) {
 			var rect = this._paper.rect(x, y, w, h);
-            if (classes !== undefined && Raphael.type === "SVG") rect.node.setAttribute('class', classes+' rect');
-            if (id !== undefined && Raphael.type === "SVG") rect.node.setAttribute('id', id);
-            return rect;
+      if (classes !== undefined && Raphael.type === "SVG") rect.node.setAttribute('class', classes+' rect');
+      if (id !== undefined && Raphael.type === "SVG") rect.node.setAttribute('id', id);
+      return rect;
 		},
 
 		draw : function(container) {
@@ -1245,7 +1249,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 					this.draw_note(s, y, id);
 				}
 
-				y += s.height; //tktk
+				y += s.height;
         if (s.message.substring(0,6) !== 'Cycle ') {
           id ++;
         }
@@ -1292,16 +1296,16 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
       /*
       var x;
       if (aX < bX) {
-			  x = aX + signal.message.length*6; //tk changed
+			  x = aX + signal.message.length*6; 
       } else {
-			  x = aX - signal.message.length*6; //tk changed
+			  x = aX - signal.message.length*6;
       }
       */
       var x;
       if (aX < bX) {
-			  x = aX + ACTOR_MARGIN; //tk changed
+			  x = aX + ACTOR_MARGIN;
       } else {
-			  x = aX - ACTOR_MARGIN; // - signal.message.length*6; //tk changed
+			  x = aX - ACTOR_MARGIN;
       }
 
 			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
@@ -1309,9 +1313,9 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			// Draw the text in the middle of the signal
 			//this.draw_text(x, y, signal.message, this._font, 'signal');
       if (aX < bX) {
-			  this.draw_text_left(x, y, signal.message, this._font, 'signal', id); //tk changed
+			  this.draw_text_left(x, y, signal.message, this._font, 'signal', id);
       } else {
-			  this.draw_text_right(x, y, signal.message, this._font, 'signal', id); //tk changed
+			  this.draw_text_right(x, y, signal.message, this._font, 'signal', id);
       }
 
 
@@ -1355,15 +1359,13 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			}
 
 			//this.draw_text_box(note, note.message, NOTE_MARGIN, NOTE_PADDING, this._font, 'note');
-      // This is added by Johannes: (tk)
+      // This is added by Johannes:
 			//var x = getCenterX(note);
       //var x = note.x + NOTE_OVERLAP + NOTE_PADDING + note.message.length*5;
       var x = aX + ACTOR_MARGIN; //note.x + NOTE_OVERLAP + NOTE_PADDING + note.message.length*5;
       //var x = aX + note.message.length*6;
 			var y = getCenterY(note);
       if (note.message.substring(0,6) === 'Cycle ') {
-        console.log(note.actor[1]);
-        console.log(getCenterX(note.actor[1]));
 			  x = (getCenterX(note.actor[1]) - aX) / 2 + aX;
         this.draw_cycle(x,y,note.message, this._font, 'note', note.message);
         return;
@@ -1393,7 +1395,9 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
       if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
-      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
+      if (id !== undefined && Raphael.type === "SVG") {
+        r.node.setAttribute('id', id);
+      }
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
@@ -1420,7 +1424,9 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
       if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
-      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
+      if (id !== undefined && Raphael.type === "SVG") {
+        r.node.setAttribute('id', id);
+      }
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
@@ -1447,7 +1453,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
       if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
-      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
+      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
@@ -1474,7 +1480,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
       if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
-      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
+      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
@@ -1562,6 +1568,13 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 		hand  : HandRaphaelTheme
 	};
 
+	Diagram.prototype.displaySettings = function (margin, fontsize, fontface) {
+	  SIGNAL_MARGIN = margin;
+	  NOTE_MARGIN   = margin;
+    FONTSIZE = font_size;
+    FONTFACE = font_face;
+	};
+
 	Diagram.prototype.drawSVG = function (container, options) {
 		var default_options = {
 			theme: 'hand'
@@ -1574,7 +1587,6 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 
 		var drawing = new themes[options.theme](this);
 		drawing.draw(container);
-
 	}; // end of drawSVG
 
 	/** js sequence diagrams
