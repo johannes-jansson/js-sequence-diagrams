@@ -17,26 +17,29 @@
 	// Title box could look better
 	// Note box could look better
 
-	var DIAGRAM_MARGIN = 10;
+	var DIAGRAM_MARGIN = 5;
 
-	var ACTOR_MARGIN   = 10; // Margin around a actor
-	var ACTOR_PADDING  = 10; // Padding inside a actor
+	var ACTOR_MARGIN   = 5; // Margin around a actor
+	var ACTOR_PADDING  = 5; // Padding inside a actor
 
-	var SIGNAL_MARGIN  = 5; // Margin around a signal
+	var SIGNAL_MARGIN  = 2; // Margin around a signal
 	var SIGNAL_PADDING = 5; // Padding inside a signal
 
-	var NOTE_MARGIN   = 10; // Margin around a note
+	var NOTE_MARGIN   = 2; // Margin around a note
 	var NOTE_PADDING  = 5; // Padding inside a note
-	var NOTE_OVERLAP  = 15; // Overlap when using a "note over A,B"
+	var NOTE_OVERLAP  = 5; // Overlap when using a "note over A,B"
 
 	var TITLE_MARGIN   = 0;
-	var TITLE_PADDING  = 5;
+	var TITLE_PADDING  = 2;
 
-	var SELF_SIGNAL_WIDTH = 20; // How far out a self signal goes
+	var SELF_SIGNAL_WIDTH = 10; // How far out a self signal goes
 
 	var PLACEMENT = Diagram.PLACEMENT;
 	var LINETYPE  = Diagram.LINETYPE;
 	var ARROWTYPE = Diagram.ARROWTYPE;
+
+  var FONTSIZE = 12;
+  var FONTFACE = "Helvetica, Arial";
 
 	var LINE = {
 		'stroke': '#000',
@@ -204,18 +207,21 @@
 			this._paper = new Raphael(container, 320, 200);
 		},
 
-		init_font : function() {},
+		init_font : function() {
+    },
 
-		draw_line : function(x1, y1, x2, y2, classes) {
+		draw_line : function(x1, y1, x2, y2, classes, id) {
             var line = this._paper.line(x1, y1, x2, y2);
             if (classes !== undefined && Raphael.type === "SVG") line.node.setAttribute('class', classes+' line');
+            if (id !== undefined && Raphael.type === "SVG") line.node.setAttribute('id', id);
 			return line;
 		},
 
-		draw_rect : function(x, y, w, h, classes) {
+		draw_rect : function(x, y, w, h, classes, id) {
 			var rect = this._paper.rect(x, y, w, h);
-            if (classes !== undefined && Raphael.type === "SVG") rect.node.setAttribute('class', classes+' rect');
-            return rect;
+      if (classes !== undefined && Raphael.type === "SVG") rect.node.setAttribute('class', classes+' rect');
+      if (id !== undefined && Raphael.type === "SVG") rect.node.setAttribute('id', id);
+      return rect;
 		},
 
 		draw : function(container) {
@@ -393,32 +399,32 @@
 		draw_title : function() {
 			var title = this._title;
 			if (title)
-				this.draw_text_box(title, title.message, TITLE_MARGIN, TITLE_PADDING, this._font, 'title');
+				this.draw_text_box(title, title.message, TITLE_MARGIN, TITLE_PADDING, this._font, 'title', title.message);
 		},
 
 		draw_actors : function(offsetY) {
 			var y = offsetY;
 			_.each(this.diagram.actors, function(a) {
 				// Top box
-				this.draw_actor(a, y, this._actors_height, 'topactor');
+				this.draw_actor(a, y, this._actors_height, 'topactor', a.name);
 
 				// Bottom box
-				this.draw_actor(a, y + this._actors_height + this._signals_height, this._actors_height, 'bottomactor');
+				this.draw_actor(a, y + this._actors_height + this._signals_height, this._actors_height, 'bottomactor', a.name);
 
 				// Veritical line
 				var aX = getCenterX(a);
 				var line = this.draw_line(
 					aX, y + this._actors_height - ACTOR_MARGIN,
 					aX, y + this._actors_height + ACTOR_MARGIN + this._signals_height,
-                    'actor');
+                    'actor', a.name);
 				line.attr(LINE);
 			}, this);
 		},
 
-		draw_actor : function (actor, offsetY, height, classes) {
+		draw_actor : function (actor, offsetY, height, classes, id) {
 			actor.y      = offsetY;
 			actor.height = height;
-			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor');
+			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor', id);
       // This is added by Johannes: (tk)
       var legNbr = [0, 1];
       for (var i = 0; i < 2; i++) {
@@ -427,24 +433,28 @@
 		},
 
 		draw_signals : function (offsetY) {
+      var id = 0;
 			var y = offsetY;
 			_.each(this.diagram.signals, function(s) {
 				if (s.type == "Signal") {
 					if (s.isSelf()) {
-						this.draw_self_signal(s, y);
+						this.draw_self_signal(s, y, id);
 					} else {
-						this.draw_signal(s, y);
+						this.draw_signal(s, y, id);
 					}
 
 				} else if (s.type == "Note") {
-					this.draw_note(s, y);
+					this.draw_note(s, y, id);
 				}
 
 				y += s.height;
+        if (s.message.substring(0,6) !== 'Cycle ') {
+          id ++;
+        }
 			}, this);
 		},
 
-		draw_self_signal : function(signal, offsetY) {
+		draw_self_signal : function(signal, offsetY, id) {
 			assert(signal.isSelf(), "signal must be a self signal");
 
 			var text_bb = signal.text_bb;
@@ -453,7 +463,7 @@
 			var x = aX + SELF_SIGNAL_WIDTH + SIGNAL_PADDING - text_bb.x;
 			var y = offsetY + signal.height / 2;
 
-			this.draw_text(x, y, signal.message, this._font, 'signal');
+			this.draw_text(x, y, signal.message, this._font, 'signal', id);
 
 			var attr = _.extend({}, LINE, {
 				'stroke-dasharray': this.line_types[signal.linetype]
@@ -464,31 +474,52 @@
 
 			// Draw three lines, the last one with a arrow
 			var line;
-			line = this.draw_line(aX, y1, aX + SELF_SIGNAL_WIDTH, y1, 'signal');
+			line = this.draw_line(aX, y1, aX + SELF_SIGNAL_WIDTH, y1, 'signal', id);
 			line.attr(attr);
 
-			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y1, aX + SELF_SIGNAL_WIDTH, y2, 'signal');
+			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y1, aX + SELF_SIGNAL_WIDTH, y2, 'signal', id);
 			line.attr(attr);
 
-			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y2, aX, y2, 'signal');
+			line = this.draw_line(aX + SELF_SIGNAL_WIDTH, y2, aX, y2, 'signal', id);
 			attr['arrow-end'] = this.arrow_types[signal.arrowtype] + '-wide-long';
 			line.attr(attr);
 		},
 
-		draw_signal : function (signal, offsetY) {
+		draw_signal : function (signal, offsetY, id) {
 			var aX = getCenterX( signal.actorA );
 			var bX = getCenterX( signal.actorB );
 
 			// Mid point between actors
-			var x = (bX - aX) / 2 + aX;
+			//var x = (bX - aX) / 2 + aX;
+      /*
+      var x;
+      if (aX < bX) {
+			  x = aX + signal.message.length*6; 
+      } else {
+			  x = aX - signal.message.length*6;
+      }
+      */
+      var x;
+      if (aX < bX) {
+			  x = aX + ACTOR_MARGIN;
+      } else {
+			  x = aX - ACTOR_MARGIN;
+      }
+
 			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
 
 			// Draw the text in the middle of the signal
-			this.draw_text(x, y, signal.message, this._font, 'signal');
+			//this.draw_text(x, y, signal.message, this._font, 'signal');
+      if (aX < bX) {
+			  this.draw_text_left(x, y, signal.message, this._font, 'signal', id);
+      } else {
+			  this.draw_text_right(x, y, signal.message, this._font, 'signal', id);
+      }
+
 
 			// Draw the line along the bottom of the signal
 			y = offsetY + signal.height - SIGNAL_MARGIN - SIGNAL_PADDING;
-			var line = this.draw_line(aX, y, bX, y, 'signal');
+			var line = this.draw_line(aX, y, bX, y, 'signal', id);
 			line.attr(LINE);
 			line.attr({
 				'arrow-end': this.arrow_types[signal.arrowtype] + '-wide-long',
@@ -500,7 +531,7 @@
 			//draw_arrowhead(bX, offsetY, ARROW_SIZE, dir);
 		},
 
-		draw_note : function (note, offsetY) {
+		draw_note : function (note, offsetY, id) {
 			note.y = offsetY;
 			var actorA = note.hasManyActors() ? note.actor[0] : note.actor;
 			var aX = getCenterX( actorA );
@@ -525,7 +556,20 @@
 					throw new Error("Unhandled note placement:" + note.placement);
 			}
 
-			this.draw_text_box(note, note.message, NOTE_MARGIN, NOTE_PADDING, this._font, 'note');
+			//this.draw_text_box(note, note.message, NOTE_MARGIN, NOTE_PADDING, this._font, 'note');
+      // This is added by Johannes:
+			//var x = getCenterX(note);
+      //var x = note.x + NOTE_OVERLAP + NOTE_PADDING + note.message.length*5;
+      var x = aX + ACTOR_MARGIN; //note.x + NOTE_OVERLAP + NOTE_PADDING + note.message.length*5;
+      //var x = aX + note.message.length*6;
+			var y = getCenterY(note);
+      if (note.message.substring(0,6) === 'Cycle ') {
+			  x = (getCenterX(note.actor[1]) - aX) / 2 + aX;
+        this.draw_cycle(x,y,note.message, this._font, 'note', note.message);
+        return;
+      }
+			this.draw_text_left(x, y, note.message, this._font, 'note', id);
+
 		},
 
 		/**
@@ -533,7 +577,7 @@
 		 * x,y (int) x,y center point for this text
 		 * TODO Horz center the text when it's multi-line print
 		 */
-		draw_text : function (x, y, text, font, classes) {
+		draw_text : function (x, y, text, font, classes, id) {
 			var paper = this._paper;
 			var f = font || {};
 			var t;
@@ -543,31 +587,118 @@
 				t = paper.text(x, y, text);
 				t.attr(f);
 			}
-            if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
 			// draw a rect behind it
 			var bb = t.getBBox();
 			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
-            if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") {
+        r.node.setAttribute('id', id);
+      }
 			r.attr({'fill': "#fff", 'stroke': 'none'});
 
 			t.toFront();
 		},
 
-		draw_text_box : function (box, text, margin, padding, font, classes) {
+		/**
+		 * Draws text with two lines
+		 * x,y (int) x,y center point for this text
+		 * TODO Horz center the text when it's multi-line print
+		 */
+		draw_cycle : function (x, y, text, font, classes, id) {
+			var paper = this._paper;
+			var f = font || {};
+			var t;
+			if (f._obj) {
+				t = paper.print_center(x, y, text, f._obj, f['font-size']);
+			} else {
+				t = paper.text(x, y, text);
+				t.attr(f);
+			}
+      if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
+			// draw a rect behind it
+			var bb = t.getBBox();
+			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
+      if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") {
+        r.node.setAttribute('id', id);
+      }
+			r.attr({'fill': "#fff", 'stroke': 'none'});
+
+			t.toFront();
+		},
+
+		/**
+		 * Draws text with a white background
+		 * x,y (int) x,y starting point for this text
+		 */
+		draw_text_left : function (x, y, text, font, classes, id) {
+			var paper = this._paper;
+			var f = font || {};
+			var t;
+			if (f._obj) {
+				t = paper.print_center(x, y, text, f._obj, f['font-size']).attr({'text-anchor': 'start'});
+			} else {
+				t = paper.text(x, y, text).attr({'text-anchor': 'start'});
+				t.attr(f);
+			}
+      if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
+
+			// draw a rect behind it
+			var bb = t.getBBox();
+			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
+      if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
+			r.attr({'fill': "#fff", 'stroke': 'none'});
+
+			t.toFront();
+		},
+
+		/**
+		 * Draws text with a white background
+		 * x,y (int) x,y ending point for this text
+		 */
+		draw_text_right : function (x, y, text, font, classes, id) {
+			var paper = this._paper;
+			var f = font || {};
+			var t;
+			if (f._obj) {
+				t = paper.print_center(x, y, text, f._obj, f['font-size']).attr({'text-anchor': 'end'});
+			} else {
+				t = paper.text(x, y, text).attr({'text-anchor': 'end'});
+				t.attr(f);
+			}
+      if (classes !== undefined && Raphael.type === "SVG") t.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") t.node.setAttribute('id', id);
+
+			// draw a rect behind it
+			var bb = t.getBBox();
+			var r = paper.rect(bb.x, bb.y, bb.width, bb.height);
+      if (classes !== undefined && Raphael.type === "SVG") r.node.setAttribute('class', classes+' text');
+      if (id !== undefined && Raphael.type === "SVG") r.node.setAttribute('id', id);
+			r.attr({'fill': "#fff", 'stroke': 'none'});
+
+			t.toFront();
+		},
+
+		draw_text_box : function (box, text, margin, padding, font, classes, id) {
 			var x = box.x + margin;
 			var y = box.y + margin;
 			var w = box.width  - 2 * margin;
 			var h = box.height - 2 * margin;
 
 			// Draw inner box
-			var rect = this.draw_rect(x, y, w, h, classes+' textbox innerbox');
+			var rect = this.draw_rect(x, y, w, h, classes+' textbox innerbox', id);
 			rect.attr(LINE);
 
 			// Draw text (in the center)
 			x = getCenterX(box);
 			y = getCenterY(box);
 
-			this.draw_text(x, y, text, font, classes+' textbox');
+			this.draw_text(x, y, text, font, classes+' textbox', id);
 		}
 
 		/**
@@ -635,6 +766,13 @@
 		hand  : HandRaphaelTheme
 	};
 
+	Diagram.prototype.displaySettings = function (margin, fontsize, fontface) {
+	  SIGNAL_MARGIN = margin;
+	  NOTE_MARGIN   = margin;
+    FONTSIZE = font_size;
+    FONTFACE = font_face;
+	};
+
 	Diagram.prototype.drawSVG = function (container, options) {
 		var default_options = {
 			theme: 'hand'
@@ -647,6 +785,5 @@
 
 		var drawing = new themes[options.theme](this);
 		drawing.draw(container);
-
 	}; // end of drawSVG
 
