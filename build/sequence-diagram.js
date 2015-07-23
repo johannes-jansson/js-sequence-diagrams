@@ -1046,6 +1046,8 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			this.draw_title();
 			this.draw_actors(y);
 			this.draw_signals(y + this._actors_height);
+      console.log("Paper:"); //tktk
+      console.log(this._paper);
 
 			this._paper.setFinish();
 		},
@@ -1231,9 +1233,6 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			actor.height = height;
 			this.draw_text_box(actor, actor.name, ACTOR_MARGIN, ACTOR_PADDING, this._font, classes+' actor');
 
-      // This is added by Johannes: (tk)
-      
-      alert(classes.indexOf("System")); //tktk
       if (classes.indexOf("System") === -1) {
         var legNbr = [0, 1];
         this.draw_text(actor.x +  5, actor.y + height/2, legNbr[0], this._font, classes+' actor leg');
@@ -1242,6 +1241,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 		},
 
 		draw_signals : function (offsetY) {
+      console.log("draw_signals: "+offsetY);
       var id = 0;
 			var y = offsetY;
 			_.each(this.diagram.signals, function(s) {
@@ -1315,7 +1315,10 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			  x = aX - ACTOR_MARGIN;
       }
 
-			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
+			var y = offsetY + SIGNAL_MARGIN + SIGNAL_PADDING + SIGNAL_PADDING;
+      console.log("In signal, offsetY = "+typeof offsetY);
+      console.log("In signal, margin = "+typeof SIGNAL_MARGIN);
+      console.log("In signal, padding = "+typeof SIGNAL_PADDING);
 
 			// Draw the text in the middle of the signal
 			//this.draw_text(x, y, signal.message, this._font, 'signal');
@@ -1324,11 +1327,13 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
       } else {
 			  this.draw_text_right(x, y, signal.message, this._font, 'signal '+id);
       }
+      console.log("Text drawn at "+y);
 
 
 			// Draw the line along the bottom of the signal
 			y = offsetY + signal.height - SIGNAL_MARGIN - SIGNAL_PADDING;
 			var line = this.draw_line(aX, y, bX, y, 'signal '+id);
+      console.log("Text drawn at "+y);
 			line.attr(LINE);
 			line.attr({
 				'arrow-end': this.arrow_types[signal.arrowtype] + '-wide-long',
@@ -1572,12 +1577,27 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 	};
 
 	Diagram.prototype.displaySettings = function (margin, font_size, font_family) {
-    alert("Changing settings");
-	  SIGNAL_MARGIN = margin;
-	  NOTE_MARGIN   = margin;
+	  SIGNAL_MARGIN = parseInt(margin);
+	  NOTE_MARGIN   = parseInt(margin);
     FONTSIZE = font_size;
     FONTFAMILY = font_family;
 	};
+
+  Diagram.prototype.getSVG = function (options) {
+		var default_options = {
+			theme: 'hand'
+		};
+
+		options = _.defaults(options || {}, default_options);
+
+		if (!(options.theme in themes)) throw new Error("Unsupported theme: " + options.theme);
+
+		var drawing = new themes[options.theme](this);
+    console.log("Paper: (according to getSVG()");
+    console.log(drawing._paper);
+
+		//drawing.draw('diagram'); //tktk
+  };
 
 	Diagram.prototype.drawSVG = function (container, options) {
 		var default_options = {
@@ -1590,7 +1610,11 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 			throw new Error("Unsupported theme: " + options.theme);
 
 		var drawing = new themes[options.theme](this);
-		drawing.draw(container);
+    console.log("Drawing:");
+    console.log(drawing); //tktk
+		var outpt = drawing.draw(container); //tktk
+    console.log("Output:");
+    console.log(outpt); //tktk
 	}; // end of drawSVG
 
 	/** js sequence diagrams

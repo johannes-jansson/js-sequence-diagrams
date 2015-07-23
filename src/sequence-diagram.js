@@ -239,6 +239,8 @@
 			this.draw_title();
 			this.draw_actors(y);
 			this.draw_signals(y + this._actors_height);
+      console.log("Paper:"); //tktk
+      console.log(this._paper);
 
 			this._paper.setFinish();
 		},
@@ -505,7 +507,7 @@
 			  x = aX - ACTOR_MARGIN;
       }
 
-			var y = offsetY + SIGNAL_MARGIN + 2*SIGNAL_PADDING;
+			var y = offsetY + SIGNAL_MARGIN + SIGNAL_PADDING + SIGNAL_PADDING;
 
 			// Draw the text in the middle of the signal
 			//this.draw_text(x, y, signal.message, this._font, 'signal');
@@ -762,12 +764,27 @@
 	};
 
 	Diagram.prototype.displaySettings = function (margin, font_size, font_family) {
-    alert("Changing settings");
-	  SIGNAL_MARGIN = margin;
-	  NOTE_MARGIN   = margin;
+	  SIGNAL_MARGIN = parseInt(margin);
+	  NOTE_MARGIN   = parseInt(margin);
     FONTSIZE = font_size;
     FONTFAMILY = font_family;
 	};
+
+  Diagram.prototype.getSVG = function (options) {
+		var default_options = {
+			theme: 'hand'
+		};
+
+		options = _.defaults(options || {}, default_options);
+
+		if (!(options.theme in themes)) throw new Error("Unsupported theme: " + options.theme);
+
+		var drawing = new themes[options.theme](this);
+    console.log("Paper: (according to getSVG()"); //tk
+    console.log(drawing._paper);
+
+		//drawing.draw('diagram'); //tktk
+  };
 
 	Diagram.prototype.drawSVG = function (container, options) {
 		var default_options = {
@@ -780,6 +797,10 @@
 			throw new Error("Unsupported theme: " + options.theme);
 
 		var drawing = new themes[options.theme](this);
-		drawing.draw(container);
+    console.log("Drawing:");
+    console.log(drawing); //tktk
+		var outpt = drawing.draw(container); //tktk
+    console.log("Output:");
+    console.log(outpt); //tktk
 	}; // end of drawSVG
 
