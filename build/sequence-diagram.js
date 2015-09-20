@@ -1083,7 +1083,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 
 				//var bb = t.attr("text", a.name).getBBox();
 				a.x = 0; a.y = 0;
-				a.width  = bb.width  + (ACTOR_PADDING + ACTOR_MARGIN) * 2;
+				a.width  = bb.width  + (ACTOR_PADDING + ACTOR_MARGIN) * 2; //Width of the container
 				a.height = bb.height + (ACTOR_PADDING + ACTOR_MARGIN) * 2;
 
 				a.distances = [];
@@ -1185,7 +1185,13 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 						return;
 
 					b = actors[b];
+
+          console.log(b);
+          console.log(b.x);
+          console.log(distance);
+
 					distance = Math.max(distance, a.width / 2, b.width / 2);
+          distance = 150;
 					b.x = Math.max(b.x, a.x + a.width/2 + distance - b.width/2);
 				});
 
@@ -1321,7 +1327,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
       }
 
 			// Draw the line along the bottom of the signal
-			y = offsetY + signal.height - SIGNAL_MARGIN - SIGNAL_PADDING - 10; //tk added
+			y = offsetY + signal.height - SIGNAL_MARGIN - SIGNAL_PADDING - 5; //tk added, was 10
 			var line = this.draw_line(aX, y, bX, y, 'signal '+classes);
 			line.attr(LINE);
 			line.attr({
@@ -1583,7 +1589,7 @@ Raphael.registerFont({"w":209,"face":{"font-family":"daniel","font-weight":700,"
 	};
 
 	Diagram.prototype.displaySettings = function (margin, font_size, font_family) {
-	  SIGNAL_MARGIN = parseInt(margin);
+	  SIGNAL_MARGIN = parseInt(margin)+2;
 	  NOTE_MARGIN   = parseInt(margin);
     FONTSIZE = font_size;
     FONTFAMILY = font_family;
